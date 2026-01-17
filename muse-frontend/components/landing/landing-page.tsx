@@ -179,7 +179,7 @@ export function LandingPage() {
             >
               Log in
             </Link>
-            <Link href="/onboarding">
+            <Link href="/sign-up">
               <Button
                 variant="outline"
                 size="sm"

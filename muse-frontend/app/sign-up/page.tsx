@@ -1,39 +1,38 @@
-/*"use client"
-
-import type React from "react"
+"use client"
 
 import { useState } from "react"
-import { Eye, EyeOff, ArrowRight, Mail, Lock } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Eye, EyeOff, ArrowRight, Mail, Lock, User } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 
-export default function LoginPage() {
+export default function SignUpPage() {
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [focusedField, setFocusedField] = useState<string | null>(null)
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.MouseEvent) => {
     e.preventDefault()
+    if (!name || !email || !password) return
+    
     setIsLoading(true)
-    // Simulate login
+    // Simulate sign up
     await new Promise((resolve) => setTimeout(resolve, 1500))
     router.push("/coming-soon")
   }
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row" style={{ backgroundColor: "#f5f3ef" }}>
-      {/* Left side - Branding */
-      /*<div
+      {/* Left side - Branding */}
+      <div
         className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center justify-center"
         style={{ backgroundColor: "#3d3830" }}
       >
-        {/* Decorative elements */
-       /* <div className="absolute inset-0 overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute inset-0 overflow-hidden">
           <div
             className="absolute top-1/4 -left-20 w-[400px] h-[400px] rounded-full blur-3xl opacity-20"
             style={{ backgroundColor: "#c4a77d" }}
@@ -44,8 +43,8 @@ export default function LoginPage() {
           />
         </div>
 
-        {/* Content */
-      /*  <div className="relative z-10 px-16 text-center">
+        {/* Content */}
+        <div className="relative z-10 px-16 text-center">
           <div
             className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-8 border border-[#f5f3ef]/20"
             style={{ backgroundColor: "rgba(245, 243, 239, 0.1)" }}
@@ -55,28 +54,28 @@ export default function LoginPage() {
             </span>
           </div>
           <h1 className="font-serif text-5xl mb-6" style={{ color: "#f5f3ef" }}>
-            Welcome back
+            Join Muse
           </h1>
           <p className="text-lg leading-relaxed max-w-md mx-auto" style={{ color: "rgba(245, 243, 239, 0.7)" }}>
-            Your curated wardrobe awaits. Sign in to continue your style journey.
+            Start your personalized style journey. We'll notify you when we launch.
           </p>
 
-          {/* Fashion quote */
-       /*   <div className="mt-16 pt-16 border-t border-[#f5f3ef]/10">
+          {/* Fashion quote */}
+          <div className="mt-16 pt-16 border-t border-[#f5f3ef]/10">
             <blockquote className="font-serif text-xl italic" style={{ color: "rgba(245, 243, 239, 0.6)" }}>
-              &ldquo;Style is a way to say who you are without having to speak.&rdquo;
+              &ldquo;Fashion is the armor to survive the reality of everyday life.&rdquo;
             </blockquote>
             <p className="mt-4 text-sm" style={{ color: "rgba(245, 243, 239, 0.4)" }}>
-              — Rachel Zoe
+              — Bill Cunningham
             </p>
           </div>
         </div>
       </div>
 
-      {/* Right side - Form */
-   /*   <div className="flex-1 flex flex-col justify-center px-6 py-12 lg:px-16">
-        {/* Mobile header */
-       /* <div className="lg:hidden mb-12 text-center">
+      {/* Right side - Form */}
+      <div className="flex-1 flex flex-col justify-center px-6 py-12 lg:px-16">
+        {/* Mobile header */}
+        <div className="lg:hidden mb-12 text-center">
           <Link href="/" className="inline-flex items-center gap-2 mb-8">
             <div
               className="w-10 h-10 rounded-full flex items-center justify-center"
@@ -93,8 +92,8 @@ export default function LoginPage() {
         </div>
 
         <div className="max-w-md mx-auto w-full">
-          {/* Desktop back link */
-         /* <Link
+          {/* Desktop back link */}
+          <Link
             href="/"
             className="hidden lg:inline-flex items-center gap-2 text-sm mb-12 opacity-60 hover:opacity-100 transition-opacity"
             style={{ color: "#3d3830" }}
@@ -105,14 +104,40 @@ export default function LoginPage() {
 
           <div className="mb-10">
             <h2 className="font-serif text-3xl lg:text-4xl mb-3" style={{ color: "#3d3830" }}>
-              Sign in
+              Create your account
             </h2>
-            <p style={{ color: "rgba(61, 56, 48, 0.6)" }}>Enter your credentials to access your account</p>
+            <p style={{ color: "rgba(61, 56, 48, 0.6)" }}>Join our waitlist to get early access</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email field */
-         /*   <div className="space-y-2">
+          <div className="space-y-6">
+            {/* Name field */}
+            <div className="space-y-2">
+              <label htmlFor="name" className="text-sm font-medium" style={{ color: "#3d3830" }}>
+                Name
+              </label>
+              <div className="relative">
+                <User
+                  className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors duration-300 ${
+                    focusedField === "name" ? "opacity-100" : "opacity-40"
+                  }`}
+                  style={{ color: "#3d3830" }}
+                />
+                <input
+                  id="name"
+                  type="text"
+                  placeholder="Your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  onFocus={() => setFocusedField("name")}
+                  onBlur={() => setFocusedField(null)}
+                  className="w-full pl-12 h-14 rounded-xl border border-[#3d3830]/10 bg-transparent focus:border-[#3d3830]/30 focus:ring-0 transition-all duration-300 placeholder:text-[#3d3830]/30 outline-none"
+                  style={{ color: "#3d3830" }}
+                />
+              </div>
+            </div>
+
+            {/* Email field */}
+            <div className="space-y-2">
               <label htmlFor="email" className="text-sm font-medium" style={{ color: "#3d3830" }}>
                 Email
               </label>
@@ -123,7 +148,7 @@ export default function LoginPage() {
                   }`}
                   style={{ color: "#3d3830" }}
                 />
-                <Input
+                <input
                   id="email"
                   type="email"
                   placeholder="you@example.com"
@@ -131,27 +156,17 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   onFocus={() => setFocusedField("email")}
                   onBlur={() => setFocusedField(null)}
-                  className="pl-12 h-14 rounded-xl border-[#3d3830]/10 bg-transparent focus:border-[#3d3830]/30 focus:ring-0 transition-all duration-300 placeholder:text-[#3d3830]/30"
+                  className="w-full pl-12 h-14 rounded-xl border border-[#3d3830]/10 bg-transparent focus:border-[#3d3830]/30 focus:ring-0 transition-all duration-300 placeholder:text-[#3d3830]/30 outline-none"
                   style={{ color: "#3d3830" }}
-                  required
                 />
               </div>
             </div>
 
-            {/* Password field */
-         /*   <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label htmlFor="password" className="text-sm font-medium" style={{ color: "#3d3830" }}>
-                  Password
-                </label>
-                <Link
-                  href="/forgot-password"
-                  className="text-sm hover:underline transition-all"
-                  style={{ color: "rgba(61, 56, 48, 0.6)" }}
-                >
-                  Forgot password?
-                </Link>
-              </div>
+            {/* Password field */}
+            <div className="space-y-2">
+              <label htmlFor="password" className="text-sm font-medium" style={{ color: "#3d3830" }}>
+                Password
+              </label>
               <div className="relative">
                 <Lock
                   className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors duration-300 ${
@@ -159,17 +174,21 @@ export default function LoginPage() {
                   }`}
                   style={{ color: "#3d3830" }}
                 />
-                <Input
+                <input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
+                  placeholder="Create a password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   onFocus={() => setFocusedField("password")}
                   onBlur={() => setFocusedField(null)}
-                  className="pl-12 pr-12 h-14 rounded-xl border-[#3d3830]/10 bg-transparent focus:border-[#3d3830]/30 focus:ring-0 transition-all duration-300 placeholder:text-[#3d3830]/30"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && name && email && password) {
+                      handleSubmit(e as any)
+                    }
+                  }}
+                  className="w-full pl-12 pr-12 h-14 rounded-xl border border-[#3d3830]/10 bg-transparent focus:border-[#3d3830]/30 focus:ring-0 transition-all duration-300 placeholder:text-[#3d3830]/30 outline-none"
                   style={{ color: "#3d3830" }}
-                  required
                 />
                 <button
                   type="button"
@@ -182,11 +201,11 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Submit button */
-         /*   <Button
-              type="submit"
-              disabled={isLoading}
-              className="w-full h-14 rounded-xl text-base font-medium relative overflow-hidden group transition-all duration-300 hover:opacity-90"
+            {/* Submit button */}
+            <button
+              onClick={handleSubmit}
+              disabled={isLoading || !name || !email || !password}
+              className="w-full h-14 rounded-xl text-base font-medium relative overflow-hidden group transition-all duration-300 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ backgroundColor: "#3d3830", color: "#f5f3ef" }}
             >
               <span
@@ -194,7 +213,7 @@ export default function LoginPage() {
                   isLoading ? "opacity-0" : "opacity-100"
                 }`}
               >
-                Sign in
+                Join Waitlist
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </span>
               {isLoading && (
@@ -205,11 +224,11 @@ export default function LoginPage() {
                   />
                 </div>
               )}
-            </Button>
-          </form>
+            </button>
+          </div>
 
-          {/* Divider */
-        /*  <div className="relative my-8">
+          {/* Divider */}
+          <div className="relative my-8">
             <div className="absolute inset-0 flex items-center" aria-hidden="true">
               <div className="w-full border-t" style={{ borderColor: "rgba(61, 56, 48, 0.1)" }} />
             </div>
@@ -220,11 +239,11 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Social login */
-         /* <div className="grid grid-cols-2 gap-4">
-            <Button
-              variant="outline"
-              className="h-14 rounded-xl border-[#3d3830]/10 bg-transparent hover:bg-[#3d3830]/5 transition-all duration-300"
+          {/* Social signup */}
+          <div className="grid grid-cols-2 gap-4">
+            <button
+              type="button"
+              className="h-14 rounded-xl border border-[#3d3830]/10 bg-transparent hover:bg-[#3d3830]/5 transition-all duration-300 flex items-center justify-center"
               style={{ color: "#3d3830" }}
             >
               <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
@@ -246,28 +265,24 @@ export default function LoginPage() {
                 />
               </svg>
               Google
-            </Button>
-            <Button
-              variant="outline"
-              className="h-14 rounded-xl border-[#3d3830]/10 bg-transparent hover:bg-[#3d3830]/5 transition-all duration-300"
+            </button>
+            <button
+              type="button"
+              className="h-14 rounded-xl border border-[#3d3830]/10 bg-transparent hover:bg-[#3d3830]/5 transition-all duration-300 flex items-center justify-center"
               style={{ color: "#3d3830" }}
             >
               <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 2C6.477 2 2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.879V14.89h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.989C18.343 21.129 22 16.99 22 12c0-5.523-4.477-10-10-10z" />
               </svg>
               Apple
-            </Button>
+            </button>
           </div>
 
-          {/* Sign up link */
-        /*  <p className="text-center mt-10 text-sm" style={{ color: "rgba(61, 56, 48, 0.6)" }}>
-            {"Don't have an account? "}
-            <Link
-              href="/onboarding"
-              className="font-medium hover:underline transition-all"
-              style={{ color: "#3d3830" }}
-            >
-              Create one
+          {/* Sign in link */}
+          <p className="text-center mt-10 text-sm" style={{ color: "rgba(61, 56, 48, 0.6)" }}>
+            Already have an account?{" "}
+            <Link href="/login" className="font-medium hover:underline transition-all" style={{ color: "#3d3830" }}>
+              Sign in
             </Link>
           </p>
         </div>
@@ -275,4 +290,3 @@ export default function LoginPage() {
     </div>
   )
 }
-*/
