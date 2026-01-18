@@ -19,9 +19,23 @@ export default function SignUpPage() {
     if (!name || !email || !password) return
     
     setIsLoading(true)
-    // Simulate sign up
+    
+    // Simulate API call delay
     await new Promise((resolve) => setTimeout(resolve, 1500))
-    router.push("/coming-soon")
+    
+    // Check if user already exists in localStorage
+    const existingUsers = JSON.parse(localStorage.getItem("muse-waitlist") || "[]")
+    const userExists = existingUsers.some((u: any) => u.email.toLowerCase() === email.toLowerCase())
+    
+    if (userExists) {
+      // User already registered - redirect to already-registered page
+      router.push("/already-registered")
+    } else {
+      // New user - add to localStorage and redirect to coming-soon
+      existingUsers.push({ email: email.toLowerCase(), name, registeredAt: new Date().toISOString() })
+      localStorage.setItem("muse-waitlist", JSON.stringify(existingUsers))
+      router.push("/coming-soon")
+    }
   }
 
   return (

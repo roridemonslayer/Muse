@@ -17,12 +17,24 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [focusedField, setFocusedField] = useState<string | null>(null)
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.MouseEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    // Simulate login
+    
+    // Simulate login check
     await new Promise((resolve) => setTimeout(resolve, 1500))
-    router.push("/coming-soon")
+    
+    // Check if user is already registered in the waitlist
+    const existingUsers = JSON.parse(localStorage.getItem("muse-waitlist") || "[]")
+    const userExists = existingUsers.some((u: any) => u.email.toLowerCase() === email.toLowerCase())
+    
+    if (userExists) {
+      // User is already on the waitlist - redirect to already-registered page
+      router.push("/already-registered")
+    } else {
+      // User not found - redirect to coming-soon (in a real app, this would show an error)
+      router.push("/coming-soon")
+    }
   }
 
   return (
@@ -110,7 +122,7 @@ export default function LoginPage() {
             <p style={{ color: "rgba(61, 56, 48, 0.6)" }}>Enter your credentials to access your account</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-6">
             {/* Email field */}
             <div className="space-y-2">
               <label htmlFor="email" className="text-sm font-medium" style={{ color: "#3d3830" }}>
@@ -167,6 +179,11 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   onFocus={() => setFocusedField("password")}
                   onBlur={() => setFocusedField(null)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && email && password) {
+                      handleSubmit(e as any)
+                    }
+                  }}
                   className="pl-12 pr-12 h-14 rounded-xl border-[#3d3830]/10 bg-transparent focus:border-[#3d3830]/30 focus:ring-0 transition-all duration-300 placeholder:text-[#3d3830]/30"
                   style={{ color: "#3d3830" }}
                   required
@@ -184,8 +201,8 @@ export default function LoginPage() {
 
             {/* Submit button */}
             <Button
-              type="submit"
-              disabled={isLoading}
+              onClick={handleSubmit}
+              disabled={isLoading || !email || !password}
               className="w-full h-14 rounded-xl text-base font-medium relative overflow-hidden group transition-all duration-300 hover:opacity-90"
               style={{ backgroundColor: "#3d3830", color: "#f5f3ef" }}
             >
@@ -206,7 +223,7 @@ export default function LoginPage() {
                 </div>
               )}
             </Button>
-          </form>
+          </div>
 
           {/* Divider */}
           <div className="relative my-8">
@@ -263,7 +280,7 @@ export default function LoginPage() {
           <p className="text-center mt-10 text-sm" style={{ color: "rgba(61, 56, 48, 0.6)" }}>
             {"Don't have an account? "}
             <Link
-              href="/onboarding"
+              href="/sign-up"
               className="font-medium hover:underline transition-all"
               style={{ color: "#3d3830" }}
             >
