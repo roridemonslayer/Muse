@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 
-export default function ComingSoonPage() {
+export default function AlreadyRegisteredPage() {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -86,7 +86,7 @@ export default function ComingSoonPage() {
           }}
         />
 
-        {/* Thank You Message */}
+        {/* Already Registered Message */}
         <div
           style={{
             padding: "2rem",
@@ -104,7 +104,7 @@ export default function ComingSoonPage() {
               marginBottom: "1rem",
             }}
           >
-            You're on the list!
+            Welcome back!
           </p>
           <p
             style={{
@@ -114,7 +114,7 @@ export default function ComingSoonPage() {
               lineHeight: 1.6,
             }}
           >
-            Thank you for joining the Muse waitlist. We'll send you an email as soon as we launch.
+            You're already on our waitlist. We'll notify you via email as soon as Muse launches.
           </p>
         </div>
 
@@ -140,11 +140,9 @@ export default function ComingSoonPage() {
             marginBottom: "3rem",
           }}
         >
-          We're crafting a new way to discover your personal style. Be the first to experience fashion that truly
-          understands you.
+          We're putting the finishing touches on your personalized style experience. Stay tuned!
         </p>
-
-      </div>
+        </div>
 
       {/* Back link */}
       <Link
