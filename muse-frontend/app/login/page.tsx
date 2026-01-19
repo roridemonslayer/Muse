@@ -13,6 +13,7 @@ export default function LoginPage() {
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [focusedField, setFocusedField] = useState<string | null>(null)
@@ -20,20 +21,30 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.MouseEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setError("")
     
-    // Simulate login check
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    
-    // Check if user is already registered in the waitlist
-    const existingUsers = JSON.parse(localStorage.getItem("muse-waitlist") || "[]")
-    const userExists = existingUsers.some((u: any) => u.email.toLowerCase() === email.toLowerCase())
-    
-    if (userExists) {
-      // User is already on the waitlist - redirect to already-registered page
-      router.push("/already-registered")
-    } else {
-      // User not found - redirect to coming-soon (in a real app, this would show an error)
-      router.push("/coming-soon")
+    try {
+      // Check if user exists in waitlist via API
+      const response = await fetch(`/api/waitlist?email=${encodeURIComponent(email)}`)
+      
+      if (!response.ok) {
+        throw new Error('Failed to check user status')
+      }
+
+      const data = await response.json()
+      
+      if (data.exists) {
+        // User is on the waitlist - redirect to already-registered page
+        router.push("/already-registered")
+      } else {
+        // User not found
+        setError("No account found with this email. Please sign up first.")
+      }
+    } catch (err) {
+      console.error('Login error:', err)
+      setError(err instanceof Error ? err.message : 'An error occurred')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -44,7 +55,6 @@ export default function LoginPage() {
         className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center justify-center"
         style={{ backgroundColor: "#3d3830" }}
       >
-        {/* Decorative elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div
             className="absolute top-1/4 -left-20 w-[400px] h-[400px] rounded-full blur-3xl opacity-20"
@@ -56,7 +66,6 @@ export default function LoginPage() {
           />
         </div>
 
-        {/* Content */}
         <div className="relative z-10 px-16 text-center">
           <div
             className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-8 border border-[#f5f3ef]/20"
@@ -73,7 +82,6 @@ export default function LoginPage() {
             Your curated wardrobe awaits. Sign in to continue your style journey.
           </p>
 
-          {/* Fashion quote */}
           <div className="mt-16 pt-16 border-t border-[#f5f3ef]/10">
             <blockquote className="font-serif text-xl italic" style={{ color: "rgba(245, 243, 239, 0.6)" }}>
               &ldquo;Style is a way to say who you are without having to speak.&rdquo;
@@ -87,7 +95,6 @@ export default function LoginPage() {
 
       {/* Right side - Form */}
       <div className="flex-1 flex flex-col justify-center px-6 py-12 lg:px-16">
-        {/* Mobile header */}
         <div className="lg:hidden mb-12 text-center">
           <Link href="/" className="inline-flex items-center gap-2 mb-8">
             <div
@@ -105,7 +112,6 @@ export default function LoginPage() {
         </div>
 
         <div className="max-w-md mx-auto w-full">
-          {/* Desktop back link */}
           <Link
             href="/"
             className="hidden lg:inline-flex items-center gap-2 text-sm mb-12 opacity-60 hover:opacity-100 transition-opacity"
@@ -122,8 +128,13 @@ export default function LoginPage() {
             <p style={{ color: "rgba(61, 56, 48, 0.6)" }}>Enter your credentials to access your account</p>
           </div>
 
+          {error && (
+            <div className="mb-6 p-4 rounded-xl" style={{ backgroundColor: "rgba(239, 68, 68, 0.1)", color: "#dc2626" }}>
+              {error}
+            </div>
+          )}
+
           <div className="space-y-6">
-            {/* Email field */}
             <div className="space-y-2">
               <label htmlFor="email" className="text-sm font-medium" style={{ color: "#3d3830" }}>
                 Email
@@ -150,7 +161,6 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Password field */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label htmlFor="password" className="text-sm font-medium" style={{ color: "#3d3830" }}>
@@ -199,7 +209,6 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Submit button */}
             <Button
               onClick={handleSubmit}
               disabled={isLoading || !email || !password}
@@ -225,7 +234,6 @@ export default function LoginPage() {
             </Button>
           </div>
 
-          {/* Divider */}
           <div className="relative my-8">
             <div className="absolute inset-0 flex items-center" aria-hidden="true">
               <div className="w-full border-t" style={{ borderColor: "rgba(61, 56, 48, 0.1)" }} />
@@ -237,7 +245,6 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Social login */}
           <div className="grid grid-cols-2 gap-4">
             <Button
               variant="outline"
@@ -276,7 +283,6 @@ export default function LoginPage() {
             </Button>
           </div>
 
-          {/* Sign up link */}
           <p className="text-center mt-10 text-sm" style={{ color: "rgba(61, 56, 48, 0.6)" }}>
             {"Don't have an account? "}
             <Link

@@ -9,6 +9,7 @@ export default function SignUpPage() {
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -19,22 +20,36 @@ export default function SignUpPage() {
     if (!name || !email || !password) return
     
     setIsLoading(true)
+    setError("")
     
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    
-    // Check if user already exists in localStorage
-    const existingUsers = JSON.parse(localStorage.getItem("muse-waitlist") || "[]")
-    const userExists = existingUsers.some((u: any) => u.email.toLowerCase() === email.toLowerCase())
-    
-    if (userExists) {
-      // User already registered - redirect to already-registered page
-      router.push("/already-registered")
-    } else {
-      // New user - add to localStorage and redirect to coming-soon
-      existingUsers.push({ email: email.toLowerCase(), name, registeredAt: new Date().toISOString() })
-      localStorage.setItem("muse-waitlist", JSON.stringify(existingUsers))
-      router.push("/coming-soon")
+    try {
+      // Call the API endpoint
+      const response = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, name }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        if (data.alreadyRegistered) {
+          // User already registered - redirect to already-registered page
+          router.push("/already-registered")
+        } else {
+          throw new Error(data.error || 'Failed to register')
+        }
+      } else {
+        // New user - redirect to coming-soon
+        router.push("/coming-soon")
+      }
+    } catch (err) {
+      console.error('Sign up error:', err)
+      setError(err instanceof Error ? err.message : 'An error occurred')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -45,7 +60,6 @@ export default function SignUpPage() {
         className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center justify-center"
         style={{ backgroundColor: "#3d3830" }}
       >
-        {/* Decorative elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div
             className="absolute top-1/4 -left-20 w-[400px] h-[400px] rounded-full blur-3xl opacity-20"
@@ -57,7 +71,6 @@ export default function SignUpPage() {
           />
         </div>
 
-        {/* Content */}
         <div className="relative z-10 px-16 text-center">
           <div
             className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-8 border border-[#f5f3ef]/20"
@@ -74,7 +87,6 @@ export default function SignUpPage() {
             Start your personalized style journey. We'll notify you when we launch.
           </p>
 
-          {/* Fashion quote */}
           <div className="mt-16 pt-16 border-t border-[#f5f3ef]/10">
             <blockquote className="font-serif text-xl italic" style={{ color: "rgba(245, 243, 239, 0.6)" }}>
               &ldquo;Fashion is the armor to survive the reality of everyday life.&rdquo;
@@ -88,7 +100,6 @@ export default function SignUpPage() {
 
       {/* Right side - Form */}
       <div className="flex-1 flex flex-col justify-center px-6 py-12 lg:px-16">
-        {/* Mobile header */}
         <div className="lg:hidden mb-12 text-center">
           <Link href="/" className="inline-flex items-center gap-2 mb-8">
             <div
@@ -106,7 +117,6 @@ export default function SignUpPage() {
         </div>
 
         <div className="max-w-md mx-auto w-full">
-          {/* Desktop back link */}
           <Link
             href="/"
             className="hidden lg:inline-flex items-center gap-2 text-sm mb-12 opacity-60 hover:opacity-100 transition-opacity"
@@ -123,8 +133,13 @@ export default function SignUpPage() {
             <p style={{ color: "rgba(61, 56, 48, 0.6)" }}>Join our waitlist to get early access</p>
           </div>
 
+          {error && (
+            <div className="mb-6 p-4 rounded-xl" style={{ backgroundColor: "rgba(239, 68, 68, 0.1)", color: "#dc2626" }}>
+              {error}
+            </div>
+          )}
+
           <div className="space-y-6">
-            {/* Name field */}
             <div className="space-y-2">
               <label htmlFor="name" className="text-sm font-medium" style={{ color: "#3d3830" }}>
                 Name
@@ -150,7 +165,6 @@ export default function SignUpPage() {
               </div>
             </div>
 
-            {/* Email field */}
             <div className="space-y-2">
               <label htmlFor="email" className="text-sm font-medium" style={{ color: "#3d3830" }}>
                 Email
@@ -176,7 +190,6 @@ export default function SignUpPage() {
               </div>
             </div>
 
-            {/* Password field */}
             <div className="space-y-2">
               <label htmlFor="password" className="text-sm font-medium" style={{ color: "#3d3830" }}>
                 Password
@@ -215,7 +228,6 @@ export default function SignUpPage() {
               </div>
             </div>
 
-            {/* Submit button */}
             <button
               onClick={handleSubmit}
               disabled={isLoading || !name || !email || !password}
@@ -241,7 +253,6 @@ export default function SignUpPage() {
             </button>
           </div>
 
-          {/* Divider */}
           <div className="relative my-8">
             <div className="absolute inset-0 flex items-center" aria-hidden="true">
               <div className="w-full border-t" style={{ borderColor: "rgba(61, 56, 48, 0.1)" }} />
@@ -253,7 +264,6 @@ export default function SignUpPage() {
             </div>
           </div>
 
-          {/* Social signup */}
           <div className="grid grid-cols-2 gap-4">
             <button
               type="button"
@@ -292,7 +302,6 @@ export default function SignUpPage() {
             </button>
           </div>
 
-          {/* Sign in link */}
           <p className="text-center mt-10 text-sm" style={{ color: "rgba(61, 56, 48, 0.6)" }}>
             Already have an account?{" "}
             <Link href="/login" className="font-medium hover:underline transition-all" style={{ color: "#3d3830" }}>
