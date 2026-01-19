@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Eye, EyeOff, ArrowRight, Mail, Lock, User } from "lucide-react"
+import { signIn } from "next-auth/react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 
@@ -23,7 +24,6 @@ export default function SignUpPage() {
     setError("")
     
     try {
-      // Call the API endpoint
       const response = await fetch('/api/waitlist', {
         method: 'POST',
         headers: {
@@ -36,19 +36,29 @@ export default function SignUpPage() {
 
       if (!response.ok) {
         if (data.alreadyRegistered) {
-          // User already registered - redirect to already-registered page
           router.push("/already-registered")
         } else {
           throw new Error(data.error || 'Failed to register')
         }
       } else {
-        // New user - redirect to coming-soon
         router.push("/coming-soon")
       }
     } catch (err) {
       console.error('Sign up error:', err)
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleGoogleSignUp = async () => {
+    setIsLoading(true)
+    setError("")
+    try {
+      await signIn('google', { callbackUrl: '/coming-soon' })
+    } catch (err) {
+      console.error('Google sign-up error:', err)
+      setError('Failed to sign up with Google')
       setIsLoading(false)
     }
   }
@@ -266,8 +276,10 @@ export default function SignUpPage() {
 
           <div className="grid grid-cols-2 gap-4">
             <button
+              onClick={handleGoogleSignUp}
+              disabled={isLoading}
               type="button"
-              className="h-14 rounded-xl border border-[#3d3830]/10 bg-transparent hover:bg-[#3d3830]/5 transition-all duration-300 flex items-center justify-center"
+              className="h-14 rounded-xl border border-[#3d3830]/10 bg-transparent hover:bg-[#3d3830]/5 transition-all duration-300 flex items-center justify-center disabled:opacity-50"
               style={{ color: "#3d3830" }}
             >
               <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
@@ -292,7 +304,8 @@ export default function SignUpPage() {
             </button>
             <button
               type="button"
-              className="h-14 rounded-xl border border-[#3d3830]/10 bg-transparent hover:bg-[#3d3830]/5 transition-all duration-300 flex items-center justify-center"
+              disabled
+              className="h-14 rounded-xl border border-[#3d3830]/10 bg-transparent hover:bg-[#3d3830]/5 transition-all duration-300 flex items-center justify-center opacity-50"
               style={{ color: "#3d3830" }}
             >
               <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
