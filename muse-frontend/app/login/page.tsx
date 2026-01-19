@@ -1,9 +1,8 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
 import { Eye, EyeOff, ArrowRight, Mail, Lock } from "lucide-react"
+import { signIn } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
@@ -24,7 +23,7 @@ export default function LoginPage() {
     setError("")
     
     try {
-      // Check if user exists in waitlist via API
+      // Check if user exists in waitlist
       const response = await fetch(`/api/waitlist?email=${encodeURIComponent(email)}`)
       
       if (!response.ok) {
@@ -34,16 +33,26 @@ export default function LoginPage() {
       const data = await response.json()
       
       if (data.exists) {
-        // User is on the waitlist - redirect to already-registered page
         router.push("/already-registered")
       } else {
-        // User not found
         setError("No account found with this email. Please sign up first.")
       }
     } catch (err) {
       console.error('Login error:', err)
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true)
+    setError("")
+    try {
+      await signIn('google', { callbackUrl: '/already-registered' })
+    } catch (err) {
+      console.error('Google sign-in error:', err)
+      setError('Failed to sign in with Google')
       setIsLoading(false)
     }
   }
@@ -247,6 +256,8 @@ export default function LoginPage() {
 
           <div className="grid grid-cols-2 gap-4">
             <Button
+              onClick={handleGoogleSignIn}
+              disabled={isLoading}
               variant="outline"
               className="h-14 rounded-xl border-[#3d3830]/10 bg-transparent hover:bg-[#3d3830]/5 transition-all duration-300"
               style={{ color: "#3d3830" }}
@@ -273,6 +284,7 @@ export default function LoginPage() {
             </Button>
             <Button
               variant="outline"
+              disabled
               className="h-14 rounded-xl border-[#3d3830]/10 bg-transparent hover:bg-[#3d3830]/5 transition-all duration-300"
               style={{ color: "#3d3830" }}
             >
