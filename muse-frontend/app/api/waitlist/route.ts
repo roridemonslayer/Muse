@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { email, name } = body
 
-    console.log('Received signup request:', { email, name })
+    console.log('📧 Received signup request:', { email, name })
 
     if (!email || !name) {
       return NextResponse.json(
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
 
     // Check if already registered
     if (waitlist.has(email.toLowerCase())) {
-      console.log('User already registered:', email)
+      console.log('⚠️ User already registered:', email)
       return NextResponse.json(
         { alreadyRegistered: true, message: 'Email already registered' },
         { status: 409 }
@@ -38,12 +38,15 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString()
     })
 
-    console.log('Successfully added to waitlist:', { email, name })
+    console.log('✅ Successfully added to waitlist:', { email, name })
     
-    // 🎯 NEW: Send welcome email
+    // Send welcome email
+    console.log('📨 Attempting to send email...')
+    console.log('🔑 Resend API key exists?', !!process.env.RESEND_API_KEY)
+    
     try {
-      await resend.emails.send({
-        from: 'Muse <onboarding@resend.dev>', // Resend's test domain
+      const { data, error } = await resend.emails.send({
+        from: 'Muse <onboarding@resend.dev>',
         to: email,
         subject: "You're on the Muse Waitlist! ✨",
         html: `
@@ -109,52 +112,26 @@ export async function POST(request: NextRequest) {
             </body>
           </html>
         `,
-        // Plain text fallback for email clients that don't support HTML
         text: `Hi ${name}!\n\nThank you for joining the Muse waitlist! We're thrilled to have you as one of our early supporters.\n\nWhat's Next?\nWe're putting the finishing touches on your personalized style experience. You'll be among the first to know when we launch in Early 2026.\n\nStay stylish,\nThe Muse Team`
       })
 
-      console.log('Welcome email sent successfully to:', email)
+      if (error) {
+        console.error('❌ Resend API error:', error)
+      } else {
+        console.log('✉️ Email sent successfully! ID:', data?.id)
+      }
     } catch (emailError) {
-      // Log the error but don't fail the signup
-      console.error('Failed to send welcome email:', emailError)
-      // User is still added to waitlist even if email fails
+      console.error('❌ Email sending failed:', emailError)
     }
     
-    console.log('Current waitlist size:', waitlist.size)
+    console.log('📊 Current waitlist size:', waitlist.size)
     
     return NextResponse.json(
       { success: true, message: 'Successfully added to waitlist' },
       { status: 201 }
     )
   } catch (error) {
-    console.error('Waitlist POST error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
-  }
-}
-
-export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url)
-    const email = searchParams.get('email')
-
-    if (!email) {
-      return NextResponse.json(
-        { error: 'Email parameter is required' },
-        { status: 400 }
-      )
-    }
-
-    const exists = waitlist.has(email.toLowerCase())
-    
-    return NextResponse.json({
-      exists,
-      ...(exists && { user: waitlist.get(email.toLowerCase()) })
-    })
-  } catch (error) {
-    console.error('Waitlist check error:', error)
+    console.error('❌ Waitlist POST error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
